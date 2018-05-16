@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>BettingWin Lite (Alpha)</title>
+    <link rel="stylesheet" href="css/global.css" />
+
+    <script src="js/vue.js"></script>
+    <script src="js/btw.js"></script>
+    <script src="js/parameter.js"></script>
+    <script src="https://www.tezbridge.com/plugin.js"></script>
+  </head>
+  <body>
+    <div id="btw-lite-app">
+      <div id="loading" v-if="state.loading.type !== 'none'">
+        <p :class="state.loading.type">{{state.loading.tip.replace(/\n+/g, '\n') || 'RPC CALLING...'}}</p>
+      </div>
+
+      <h4>
+        <span id="logo">BettingWin<sup>Lite</sup></span>
+        CONSOLE
+      </h4>
+      <div class="splash" v-if="state.splash">
+        Loading tezbridge...
+      </div>
+      <div v-if="!state.splash">
+        <div id="account" class="content">
+          <p class="title">ACCOUNT:</p>
+          <p>{{account.pkh}}</p>
+          <p class="title">BALANCE:</p>
+          <p>{{account.balance}}</p>
+          <p class="title">BTW BALANCE:</p>
+          <p>{{account.btw_balance}}</p>
+          <button @click="refresh_account">REFRESH</button>
+        </div>
+        <div id="console">
+          <table class="op-selectors">
+            <tr>
+              <td>ROLE:</td>
+              <td>
+                <select v-model="selected_role" @change="selected_op = ''" :disabled="!account.pkh">
+                  <option value="">SELECT ROLE</option>
+                  <option :value="role" v-for="(v, role) in operations">{{role.toUpperCase()}}</option>
+                </select>
+              </td>
+            </tr>
+            <tr>
+              <td>OPERATION:</td>
+              <td>
+                <select v-model="selected_op" :disabled="!account.pkh">
+                  <option value="">SELECT OPERATION</option>
+                  <option :value="op" v-for="op in operations[selected_role]">{{op.toUpperCase().replace(/_/g, ' ')}}</option>
+                </select>
+              </td>
+            </tr>
+          </table>
+
+          <div id="parameter">
+            <div id="withdraw_share_reward" v-if="selected_op === 'withdraw_share_reward'">
+              <button @click="withdraw_share_reward">WITHDRAW</button>
+            </div>
+            <div id="get_share_reward_list" v-if="selected_op === 'get_share_reward_list'">
+              <button @click="get_share_reward_list">GET</button>
+            </div>
+            <div id="withdraw_fee" v-if="selected_op === 'withdraw_fee'">
+              <table>
+                <tr>
+                  <td>BET CONTRACT</td>
+                  <td>
+                    <select v-model.trim="param.withdraw_fee.bet_contract">
+                      <option value="">SELECT</option>
+                      <option :value="k" v-for="(v, k) in bets">{{v.name || k}}</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+              <button @click="withdraw_fee">WITHDRAW</button>
+            </div>
+            <div id="withdraw_winning_prize" v-if="selected_op === 'withdraw_winning_prize'">
+              <table>
+                <tr>
+                  <td>BET CONTRACT</td>
+                  <td>
+                    <select v-model.trim="param.withdraw_prize.bet_contract">
+                      <option value="">SELECT</option>
+                      <option :value="k" v-for="(v, k) in bets">{{v.name || k}}</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+              <button @click="withdraw_prize">WITHDRAW</button>
+            </div>
+            <div id="transfer_btw" v-if="selected_op === 'transfer_btw'">
+              <table>
+                <tr>
+                  <td>AMOUNT</td>
+                  <td>
+                    <input placeholder="input amount" v-model="param.transfer_btw.amount">
+                  </td>
+                </tr>
+                <tr>
+                  <td>TARGET KEY HASH</td>
+                  <td>
+                    <input placeholder="input target key_hash" v-model.trim="param.transfer_btw.target_pkh">
+                  </td>
+                </tr>
+              </table>
+              <button @click="transfer_btw">TRANSFER</button>
+            </div>
+            <div id="settle_bet" v-if="selected_op === 'settle_bet'">
+              <table>
+                <tr>
+                  <td>BET CONTRACT</td>
+                  <td>
+                    <select v-model.trim="param.settle_bet.bet_contract">
+                      <option value="">SELECT</option>
+                      <option :value="k" v-for="(v, k) in bets">{{v.name || k}}</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+              <button @click="submit_settle_bet">SUBMIT</button>
+            </div>
+            <div id="setup_odds" v-if="selected_op === 'setup_odds'">
+              <table>
+                <tr>
+                  <td>BET CONTRACT</td>
+                  <td>
+                    <select v-model.trim="param.setup_odds.bet_contract">
+                      <option value="">SELECT</option>
+                      <option :value="k" v-for="(v, k) in bets">{{v.name || k}}</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr>
+                  <td>ODDS DECIMAL LIST</td>
+                  <td>
+                    <input placeholder="odds decimal one by one" v-model.trim="param.setup_odds.odd_index_decimal_map">
+                  </td>
+                </tr>
+              </table>
+              <button @click="submit_setup_odds">SUBMIT</button>
+            </div>
+            <div id="report_bet" v-if="selected_op === 'report_bet'">
+              <table>
+                <tr>
+                  <td>BET CONTRACT</td>
+                  <td>
+                    <select v-model.trim="param.report_bet.bet_contract">
+                      <option value="">SELECT</option>
+                      <option :value="k" v-for="(v, k) in bets">{{v.name || k}}</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr v-if="param.report_bet.bet_contract">
+                  <td>OPTION</td>
+                  <td>
+                    <select v-model="param.report_bet.odd_index">
+                      <option value="">{{bets[param.report_bet.bet_contract].options.length == 0 ? 'PLEASE LOAD THE BET INFO' : 'SELECT'}}</option>
+                      <option :value="k" v-for="(v, k) in bets[param.report_bet.bet_contract].options">{{v.odd_name}}</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+              <button @click="submit_report_bet">SUBMIT</button>
+            </div>
+            <div id="add_bet" v-if="selected_op === 'add_bet'">
+              <table>
+                <tr>
+                  <td>BET CONTRACT</td>
+                  <td>
+                    <select v-model.trim="param.add_bet.bet_contract">
+                      <option value="">SELECT</option>
+                      <option :value="k" v-for="(v, k) in bets">{{v.name || k}}</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr v-if="param.add_bet.bet_contract">
+                  <td>OPTION</td>
+                  <td>
+                    <select v-model="param.add_bet.info.odd_index">
+                      <option value="">{{bets[param.add_bet.bet_contract].options.length == 0 ? 'PLEASE LOAD THE BET INFO' : 'SELECT'}}</option>
+                      <option :value="k" v-for="(v, k) in bets[param.add_bet.bet_contract].options">{{v.odd_name}}</option>
+                    </select>
+                  </td>
+                </tr>
+                <tr v-if="param.add_bet.info.odd_index">
+                  <td>ODDS DECIMAL</td>
+                  <td>
+                    {{bets[param.add_bet.bet_contract].options[param.add_bet.info.odd_index].odd_decimal}}
+                  </td>
+                </tr>
+                <tr>
+                  <td>AMOUNT</td>
+                  <td>
+                    <input placeholder="input amount" v-model="param.add_bet.info.token">
+                  </td>
+                </tr>
+              </table>
+              <button @click="submit_add_bet">SUBMIT</button>
+            </div>
+            <div id="get_bet_list" v-if="selected_op === 'get_bet_list'">
+              <button @click="get_bet_list">GET</button>
+            </div>
+            <div id="add_margin" v-if="selected_op === 'add_margin'">
+              <table>
+                <tr>
+                  <td>AMOUNT</td>
+                  <td>
+                    <input placeholder="input amount" v-model="param.add_margin.amount">
+                  </td>
+                </tr>
+                <tr>
+                  <td>BET CONTRACT</td>
+                  <td>
+                    <select v-model.trim="param.add_margin.bet_contract">
+                      <option value="">SELECT</option>
+                      <option :value="k" v-for="(v, k) in bets">{{v.name || k}}</option>
+                    </select>
+                  </td>
+                </tr>
+              </table>
+              <button @click="submit_add_margin">SUBMIT</button>
+            </div>
+            <div id="create_bet" v-if="selected_op === 'create_bet'">
+              <table>
+                <tr><td>NAME</td>
+                <td>
+                  <input placeholder="input name" v-model.trim="param.create_bet.info.name">
+                </td></tr>
+                <tr><td>BET TIME START</td>
+                <td>
+                  <input type="datetime-local" placeholder="input bet_time_start" v-model="param.create_bet.info.bet_time_range.start">
+                </td></tr>
+                <tr><td>BET TIME END</td>
+                <td>
+                  <input type="datetime-local" placeholder="input bet_time_end" v-model="param.create_bet.info.bet_time_range.end">
+                </td></tr>
+                <tr><td>REPORT TIME START</td>
+                <td>
+                  <input type="datetime-local" placeholder="input report_time_start" v-model="param.create_bet.info.report_time_range.start">
+                </td></tr>
+                <tr><td>REPORT TIME END</td>
+                <td>
+                  <input type="datetime-local" placeholder="input report_time_end" v-model="param.create_bet.info.report_time_range.end">
+                </td></tr>
+                <tr><td>OPTION LIST</td>
+                <td>
+                  <input placeholder="input odd_lst(splitted by ' ')" v-model.trim="param.create_bet.info.odds_lst">
+                </td></tr>
+              </table>
+              <button @click="submit_create_bet">SUBMIT</button>
+            </div>
+          </div>
+        </div>
+
+        <h4>OUTPUT</h4>
+        <div id="output">
+          <component :is="output.component" :data="output.data" @updatebet="updatebet">
+          </component>
+        </div>
+      </div>
+
+
+    </div>
+
+    <script src="js/components.js"></script>
+  </body>
+</html>

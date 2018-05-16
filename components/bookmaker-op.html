@@ -1,0 +1,26 @@
+<template>
+  <style type="text/css">
+  </style>
+
+</template>
+
+<script type="text/javascript">
+((window, document) => {
+  const template = document.currentScript.ownerDocument.querySelector('template').content
+
+  const attr_map = {
+  }
+
+  const events = {
+  }
+
+  window.customElements.define('bookmaker-op', class extends window.BTW.Element {
+    static get observedAttributes() { return Object.keys(attr_map) }
+    get attr_map() { return attr_map } 
+    get template() { return template }
+    get events() { return events }
+
+  })
+  
+})(window, document)
+</script>

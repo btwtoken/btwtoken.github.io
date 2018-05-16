@@ -1,0 +1,58 @@
+@font-face {
+    font-family: 'metropolisbold';
+    src: url('metropolis-bold-webfont.woff2') format('woff2'),
+         url('metropolis-bold-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+@font-face {
+    font-family: 'metropolisregular';
+    src: url('metropolis-regular-webfont.woff2') format('woff2'),
+         url('metropolis-regular-webfont.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+}
+
+
+* { font-family: metropolisregular, Helvetica, Arial, sans-serif; font-size: 12px; font-weight: 400; margin: 0; padding: 0; }
+h4 { color: #88FED8; font-family: metropolisbold; padding: 4px 8px; border-bottom: 1px solid #666; }
+h5 { color: #88FED8; font-size: 12px;}
+p { line-height: 1.6; }
+select { font-size: 11px; max-width: 200px;}
+body { background: #333; color: #ddd; display: none; }
+#tezbridge { display: none }
+td, th { text-align: right; padding: 0px 4px; }
+#console, #output { background: #505050; padding: 4px; }
+button { font-size: 11px; box-shadow: 1px 1px rgba(255,255,255,0.5); border: 0; color: #333; border-radius: 5px; background: rgba(255,255,255,0.9); padding: 2px 8px; margin: 2px 0; }
+button:hover { background: rgba(255,255,255,1); }
+button:disabled { background: rgba(255,255,255,0.7); color: #777; }
+
+#logo { float: right; font-family: metropolisbold; margin-top: -3px;}
+
+.splash {font-size: 24px; text-align: center; margin-top: 16px;}
+
+.op-selectors { color: #eee; }
+#parameter { background: #666; margin-top: 4px; padding: 4px; }
+#parameter td { padding: 2px; }
+
+#loading { position: fixed; top: 0; left: 0; text-align: center; width: 100%;   }
+#loading p { display: inline-block; padding: 4px 8px; background: rgba(0,0,0,0.8); border-radius: 0 0 4px 4px; animation-duration: 2s; animation-iteration-count:infinite; animation-name: fadein-fadeout;}
+#loading p.fail { background: rgba(225, 39, 39, 0.8); color: white; animation-name: none;}
+#loading p.pass { background: rgba(39, 225, 88, 0.8); color: white; animation-name: none;}
+@keyframes fadein-fadeout {0% {opacity: 1 } 50% {opacity: 0.5 } 100% {opacity: 1 } }
+
+#account { margin-bottom: 4px; padding: 4px 8px; }
+
+input { background: #999; color: white; border: 0; padding: 2px; border-radius: 1px; }
+
+.ontime {color: #97ef96;}
+.outoftime {color: #ec6d6d;}
+
+div.content p { margin-left: 16px; }
+div.content p.title { margin: 4px 0 0 0; line-height: 1.2; }
+div.content span.indent { display: block; margin-left: 16px; }
+
+#output th { width: 20%; color: #999; }
+#output b { font-family: metropolisbold; border-radius: 4px; background: #ddd; color: #333; padding: 0 4px;}
+.bet-list .item { background: #444;  padding: 4px; margin: 4px 0; }

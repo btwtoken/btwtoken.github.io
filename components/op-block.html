@@ -1,0 +1,67 @@
+<template>
+  <style type="text/css">
+    p { margin: 0; padding: 0; }
+    th { font-weight: 400; padding: 4px; text-align: right; }
+    td { text-align: right; padding: 4px;}
+  </style>
+
+  <template mode="/admin/create_bet">
+    <table>
+      <tr><th>Name</th><td><input /></td></tr>
+      <tr>
+        <th>Odds</th>
+        <td>
+          <p>
+            <button id="add-odds">+</button>
+            <input /> 
+          </p>
+        </td>
+      </tr>
+      <tr>
+        <th>Betting time range</th>
+        <td>
+          From: <input /><br>
+          To: <input />
+        </td>
+      </tr>
+      <tr>
+        <th>Reporting time range</th>
+        <td>
+          From: <input /><br>
+          To: <input />
+        </td>
+      </tr>
+    </table>
+    <button>CREATE BET</button>
+  </template>
+
+</template>
+
+
+<script type="text/javascript">
+((window, document) => {
+  const template = document.currentScript.ownerDocument.querySelector('template').content
+
+  const attr_map = {
+    mode: function(val) {
+      const template = this.dom.querySelector(`[mode="${val}"]`).content
+      this.dom.appendChild(template)
+
+      this.select('#add-odds').addEventListener('click', function() {
+        this.nextElementSibling.value = Math.random()
+      })
+    }
+  }
+
+  const events = {}
+
+  window.customElements.define('op-block', class extends window.BTW.Element {
+    static get observedAttributes() { return Object.keys(attr_map) }
+    get attr_map() { return attr_map } 
+    get template() { return template }
+    get events() { return events }
+
+  })
+  
+})(window, document)
+</script>

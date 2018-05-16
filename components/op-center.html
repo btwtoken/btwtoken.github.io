@@ -1,0 +1,77 @@
+<template>
+  <style type="text/css">
+    h4 { margin: 8px 0 0 0; font-weight: 400;}
+    div > * { vertical-align: middle }
+  </style>
+
+  <h4>Console</h4>
+  <div id="console">
+    <label>Select your role</label>
+    <select id="role"></select>
+    <label>Select your operation</label>
+    <select id="operation"></select>
+    <div id="parameter"></div>
+    <button id="submit"></button>
+  </div>
+
+  <h4>Output</h4>
+  <div id="output">
+  </div>
+</template>
+
+<script type="text/javascript">
+((window, document) => {
+  const template = document.currentScript.ownerDocument.querySelector('template').content
+
+  const operations = {
+    admin: ['create_bet', 'settle_bet'],
+    bookmaker: ['get_bet_list', 'add_margin', 'setup_odds', 'settle_bet'],
+    user: ['get_bet_list', 'add_bet', 'report_bet', 'settle_bet']
+  }
+
+  window.customElements.define('op-center', class extends window.BTW.Element {
+    static get observedAttributes() { return Object.keys({}) }
+    get attr_map() { return {} } 
+    get template() { return template }
+    get events() { 
+      const self = this
+      return {
+      'click': {
+        '#submit': function(){
+          console.log(self.param_fn())
+        }
+      },
+      'change': {
+        '#role': function() {
+          self.select('#operation').innerHTML = ''
+          const ops = operations[this.value]
+          ops.forEach(x => {
+            const option = document.createElement('option')
+            option.value = x
+            option.innerHTML = x
+            self.select('#operation').appendChild(option)
+          })
+        },
+        '#operation': function() {
+          self.select('#parameter').innerHTML = ''
+          const [node, param_fn] = window.BTW.args.createForm(window.BTW.args[self.select('#operation').value])
+          self.select('#parameter').appendChild(node)
+          self.param_fn = param_fn
+        }
+      }
+    } }
+
+    constructor() {
+      super()
+
+      Object.keys(operations).forEach(x => {
+        const option = document.createElement('option')
+        option.value = x
+        option.innerHTML = x
+        this.select('#role').appendChild(option)
+      })
+    }
+  })
+  
+})(window, document)
+</script>
